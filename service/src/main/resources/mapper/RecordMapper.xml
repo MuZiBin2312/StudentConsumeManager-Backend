@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.auggie.student_server.mapper.RecordMapper">
+
+    <!-- 根据搜索条件查询消费记录 -->
+    <resultMap id="ConsumeRecordResultMap" type="com.auggie.student_server.entity.ConsumeRecord">
+        <id column="record_id" property="recordId" />
+        <result column="name" property="name" />
+        <result column="student_id" property="studentId" />
+        <result column="amount" property="amount" />
+        <result column="location" property="location" />
+        <result column="time" property="time" />
+        <result column="payment_type" property="paymentType" />
+        <result column="consumption_type" property="consumptionType" />
+    </resultMap>
+
+    <select id="findByCriteria" parameterType="map" resultMap="ConsumeRecordResultMap">
+        SELECT *
+        FROM consume_record
+        <where>
+            <if test="recordId != null">
+                record_id = #{recordId}
+            </if>
+            <if test="name != null and name != ''">
+                <if test="fuzzy != null and fuzzy == 1">
+                    AND name LIKE CONCAT('%', #{name}, '%')
+                </if>
+                <if test="fuzzy == null or fuzzy != 1">
+                    AND name = #{name}
+                </if>
+            </if>
+            <if test="studentId != null and studentId != ''">
+                AND student_id = #{studentId}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllRecords" resultType="com.auggie.student_server.entity.ConsumeRecord">
+        SELECT
+            record_id AS recordId,
+            name,
+            student_id AS studentId,
+            amount,
+            location,
+            time,
+            payment_type AS paymentType,
+            consumption_type AS consumptionType
+        FROM consume_record
+    </select>
+
+
+
+
+    <!-- 插入新消费记录 -->
+        <!-- 使用 'addRecord' 参数名称 -->
+    <insert id="addRecord" parameterType="com.auggie.student_server.entity.ConsumeRecord">
+        INSERT INTO consume_record (record_id, name, student_id, amount, location, time, payment_type, consumption_type)
+        VALUES (#{addRecord.recordId}, #{addRecord.name}, #{addRecord.studentId}, #{addRecord.amount},
+                #{addRecord.location}, #{addRecord.time}, #{addRecord.paymentType}, #{addRecord.consumptionType})
+    </insert>
+
+    <!-- 删除消费记录 -->
+    <delete id="deleteById" parameterType="int">
+        DELETE FROM consume_record
+        WHERE record_id = #{recordId}
+    </delete>
+
+<!--    更新-->
+
+    <update id="updateRecordById" parameterType="com.auggie.student_server.entity.ConsumeRecord">
+        UPDATE consume_record
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+            <if test="studentId != null">
+                student_id = #{studentId},
+            </if>
+            <if test="amount != null">
+                amount = #{amount},
+            </if>
+            <if test="location != null">
+                location = #{location},
+            </if>
+            <if test="time != null">
+                time = #{time},
+            </if>
+            <if test="paymentType != null">
+                payment_type = #{paymentType},
+            </if>
+            <if test="consumptionType != null">
+                consumption_type = #{consumptionType},
+            </if>
+        </set>
+        WHERE record_id = #{recordId}
+    </update>
+
+
+</mapper>
