@@ -2,9 +2,8 @@ package com.auggie.student_server.controller;
 
 import com.auggie.student_server.entity.ConsumeRecord;
 import com.auggie.student_server.service.RecordService;
+import com.auggie.student_server.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,77 +26,96 @@ public class RecordController {
 
     // 新增消费记录
     @PostMapping("/addRecord")
-    public boolean addRecord(@RequestBody ConsumeRecord record) {
-        System.out.println("新增消费记录: " + record);
-        return recordService.addRecord(record);
+    public ApiResponse<Boolean> addRecord(@RequestBody ConsumeRecord record) {
+        try {
+            System.out.println("新增消费记录: " + record);
+            boolean result = recordService.addRecord(record);
+
+            // 根据业务逻辑判断返回结果
+            if (result) {
+                return ApiResponse.success(true); // 业务成功
+            } else {
+                return ApiResponse.businessError("新增消费记录失败"); // 业务失败
+            }
+        } catch (Exception e) {
+            // 系统错误返回 HTTP 500 状态
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
     }
 
+    // 获取所有消费记录
     @GetMapping("/all")
-    public List<ConsumeRecord> getAllRecords() {
-        return recordService.getAllRecords();
+    public ApiResponse<List<ConsumeRecord>> getAllRecords() {
+        try {
+            List<ConsumeRecord> records = recordService.getAllRecords();
+            return ApiResponse.success(records);
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
     }
 
+    // 根据查询条件获取消费记录
     @PostMapping("/search")
-    public List<ConsumeRecord> findByCriteria(@RequestBody Map<String, Object> criteria) {
-        return recordService.findByCriteria(criteria);
+    public ApiResponse<List<ConsumeRecord>> findByCriteria(@RequestBody Map<String, Object> criteria) {
+        try {
+            List<ConsumeRecord> records = recordService.findByCriteria(criteria);
+            return ApiResponse.success(records);
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
     }
 
     // 根据记录ID查询消费记录
     @GetMapping("/findById/{recordId}")
-    public ConsumeRecord findById(@PathVariable("recordId") Integer recordId) {
-        System.out.println("查询消费记录 By ID: " + recordId);
-        return recordService.findById(recordId);
+    public ApiResponse<ConsumeRecord> findById(@PathVariable("recordId") Integer recordId) {
+        try {
+            System.out.println("查询消费记录 By ID: " + recordId);
+            ConsumeRecord record = recordService.findById(recordId);
+            if (record != null) {
+                return ApiResponse.success(record);
+            } else {
+                return ApiResponse.businessError("记录未找到");
+            }
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
     }
 
-
+    // 根据ID删除消费记录
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteRecordById(@PathVariable("id") int id) {
-        boolean success = recordService.deleteRecordById(id);
-        if (success) {
-            return ResponseEntity.ok("Record deleted successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found");
+    public ApiResponse<String> deleteRecordById(@PathVariable("id") int id) {
+        try {
+            boolean success = recordService.deleteRecordById(id);
+            if (success) {
+                return ApiResponse.success("记录删除成功");
+            } else {
+                return ApiResponse.businessError("记录未找到");
+            }
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
         }
     }
 
-
+    // 根据ID更新消费记录
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateRecord(@PathVariable Integer id, @RequestBody ConsumeRecord record) {
-        record.setRecordId(id);
-        int updatedRows = recordService.updateRecordById(record);
-
-        if (updatedRows > 0) {
-            return ResponseEntity.ok("Record updated successfully");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found");
+    public ApiResponse<String> updateRecord(@PathVariable Integer id, @RequestBody ConsumeRecord record) {
+        try {
+            record.setRecordId(id);
+            int updatedRows = recordService.updateRecordById(record);
+            if (updatedRows > 0) {
+                return ApiResponse.success("记录更新成功");
+            } else {
+                return ApiResponse.businessError("记录未找到");
+            }
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
         }
     }
-
-    // 条件查询消费记录
-//    @PostMapping("/findBySearch")
-//    public List<ConsumeRcrd> findBySearch(@RequestBody Map<String, String> map) {
-//        System.out.println("条件查询消费记录: " + map);
-//        return recordService.findBySearch(map);
-//    }
-
-    // 删除消费记录
-//    @GetMapping("/deleteById/{recordId}")
-//    public boolean deleteById(@PathVariable("recordId") String recordId) {
-//        System.out.println("删除消费记录 By ID: " + recordId);
-//        return recordService.deleteById(recordId);
-//    }
-
-    // 更新消费记录
-//    @PostMapping("/updateRecord")
-//    public boolean updateRecord(@RequestBody ConsumeRecord record) {
-//        System.out.println("更新消费记录: " + record);
-//        return recordService.updateRecord(record);
-//    }
 
     // 测试日志接口
     @GetMapping("/log")
-    public int log() {
+    public ApiResponse<Integer> log() {
         System.out.println("RecordController log");
-        return 1;
+        return ApiResponse.success(1);
     }
 }
