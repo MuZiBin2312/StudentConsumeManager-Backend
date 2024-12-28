@@ -10,4 +10,38 @@
         VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status})
     </insert>
 
+    <!-- 全部查询 -->
+    <select id="findAll" resultType="com.auggie.student_server.entity.OperationLog">
+        SELECT * FROM operation_log
+    </select>
+
+    <!-- 条件查询 -->
+    <select id="findByCriteria" parameterType="map" resultType="com.auggie.student_server.entity.OperationLog">
+        SELECT *
+        FROM operation_log
+        <where>
+            <if test="params.id != null">
+                id = #{params.id}
+            </if>
+            <if test="params.module != null and params.module != ''">
+                AND module = #{params.module}
+            </if>
+            <if test="params.action != null and params.action != ''">
+                AND action = #{params.action}
+            </if>
+            <if test="params.operator != null and params.operator != ''">
+                AND operator = #{params.operator}
+            </if>
+            <if test="params.requestId != null and params.requestId != ''">
+                AND request_id = #{params.requestId}
+            </if>
+            <if test="params.status != null and params.status != ''">
+                AND status = #{params.status}
+            </if>
+            <if test="params.timestamp != null">
+                AND timestamp = #{params.timestamp}
+            </if>
+        </where>
+    </select>
+
 </mapper>

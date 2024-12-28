@@ -1,10 +1,13 @@
 package com.auggie.student_server.controller;
 
+import com.auggie.student_server.entity.OperationLog;
 import com.auggie.student_server.service.OperationLogService;
 import com.auggie.student_server.utils.ApiResponse;
-import com.auggie.student_server.entity.OperationLog; // 导入新创建的封装类
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -18,18 +21,37 @@ public class OperationLogController {
     @PostMapping("/add")
     public ApiResponse<Void> addLog(@RequestBody OperationLog logRequest) {
         try {
-            // 使用封装类中的参数调用服务层方法来记录日志
             operationLogService.addLog(logRequest.getModule(),
                     logRequest.getAction(),
                     logRequest.getOperator(),
                     logRequest.getRequestId(),
                     logRequest.getStatus());
 
-            // 返回成功响应
             return ApiResponse.success(null);
         } catch (Exception e) {
-            // 如果有异常，返回错误响应
             return ApiResponse.error(500, "日志记录失败: " + e.getMessage());
+        }
+    }
+
+    // 查询所有日志记录
+    @GetMapping("/all")
+    public ApiResponse<List<OperationLog>> getAllLogs() {
+        try {
+            List<OperationLog> logs = operationLogService.findAllLogs();
+            return ApiResponse.success(logs);
+        } catch (Exception e) {
+            return ApiResponse.error(500, "查询失败: " + e.getMessage());
+        }
+    }
+
+    // 条件查询日志记录
+    @PostMapping("/search")
+    public ApiResponse<List<OperationLog>> searchLogs(@RequestBody Map<String, Object> params) {
+        try {
+            List<OperationLog> logs = operationLogService.findLogsByCriteria(params);
+            return ApiResponse.success(logs);
+        } catch (Exception e) {
+            return ApiResponse.error(500, "条件查询失败: " + e.getMessage());
         }
     }
 }
