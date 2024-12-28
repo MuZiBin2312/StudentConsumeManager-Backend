@@ -38,8 +38,11 @@
             <if test="params.status != null and params.status != ''">
                 AND status = #{params.status}
             </if>
-            <if test="params.timestamp != null">
-                AND timestamp = #{params.timestamp}
+            <if test="params.startTime != null and params.endTime != null">
+                AND timestamp BETWEEN #{params.startTime} AND #{params.endTime}
+            </if>
+            <if test="params.startTime != null and params.endTime != null">
+                AND timestamp BETWEEN #{params.startTime} AND #{params.endTime}
             </if>
         </where>
     </select>

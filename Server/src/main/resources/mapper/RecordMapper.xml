@@ -20,9 +20,12 @@
         SELECT *
         FROM consume_record
         <where>
+            <!-- 根据 record_id 筛选 -->
             <if test="recordId != null">
                 record_id = #{recordId}
             </if>
+
+            <!-- 根据 name 筛选，支持模糊查询 -->
             <if test="name != null and name != ''">
                 <if test="fuzzy != null and fuzzy == 1">
                     AND name LIKE CONCAT('%', #{name}, '%')
@@ -31,8 +34,45 @@
                     AND name = #{name}
                 </if>
             </if>
+
+            <!-- 根据 student_id 筛选 -->
             <if test="studentId != null and studentId != ''">
                 AND student_id = #{studentId}
+            </if>
+
+            <!-- 使用 BETWEEN 进行金额范围筛选 -->
+            <if test="minAmount != null or maxAmount != null">
+                AND amount BETWEEN
+                <if test="minAmount != null">#{minAmount}</if>
+                <if test="minAmount == null">0</if>
+                AND
+                <if test="maxAmount != null">#{maxAmount}</if>
+                <if test="maxAmount == null">999999999.99</if>
+            </if>
+
+            <!-- 使用 BETWEEN 进行时间范围筛选 -->
+            <if test="startTime != null or endTime != null">
+                AND time BETWEEN
+                <if test="startTime != null">#{startTime}</if>
+                <if test="startTime == null">'1970-01-01 00:00:00'</if>
+                AND
+                <if test="endTime != null">#{endTime}</if>
+                <if test="endTime == null">'9999-12-31 23:59:59'</if>
+            </if>
+
+            <!-- 根据 location 筛选 -->
+            <if test="location != null and location != ''">
+                AND location = #{location}
+            </if>
+
+            <!-- 根据 payment_type 筛选 -->
+            <if test="paymentType != null and paymentType != ''">
+                AND payment_type = #{paymentType}
+            </if>
+
+            <!-- 根据 consumption_type 筛选 -->
+            <if test="consumptionType != null and consumptionType != ''">
+                AND consumption_type = #{consumptionType}
             </if>
         </where>
     </select>
