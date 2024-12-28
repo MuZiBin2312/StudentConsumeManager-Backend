@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.auggie.student_server.mapper.OperationLogMapper">
+
+    <!-- 插入操作日志 -->
+    <insert id="insertLog" parameterType="com.auggie.student_server.entity.OperationLog">
+        INSERT INTO operation_log (module, action, operator, timestamp, request_id, status)
+        VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status})
+    </insert>
+
+</mapper>
