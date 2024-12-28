@@ -7,7 +7,6 @@ import org.apache.ibatis.type.Alias;
 
 import java.util.Date;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +19,7 @@ public class OperationLog {
     private Date timestamp;      // 操作时间
     private String requestId;    // 请求ID
     private String status;       // 状态
+    private String host;         // 客户端IP和端口
 
     // Getter and Setter methods...
 
@@ -77,5 +77,13 @@ public class OperationLog {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
     }
 }

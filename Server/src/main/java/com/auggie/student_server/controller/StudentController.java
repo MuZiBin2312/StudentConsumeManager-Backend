@@ -3,9 +3,16 @@ package com.auggie.student_server.controller;
 import com.auggie.student_server.entity.Student;
 import com.auggie.student_server.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,15 +37,48 @@ public class StudentController {
     }
 
     @PostMapping("/login")
-    public boolean login(@RequestBody Student student) {
-        System.out.println("正在验证学生登陆 " + student);
+    public boolean login(@RequestBody Student student, HttpServletRequest request) {
+        Map<String, Object> response = new HashMap<>();
+        System.out.println("正在验证学生登录: " + student);
+
         Student s = studentService.findById(student.getSid());
         if (s == null || !s.getPassword().equals(student.getPassword())) {
-            return false;
-        }
-        else {
+            response.put("message", "登录失败，账号或密码错误");
+            response.put("code", 401);
             return true;
         }
+
+        // 构建权限集合，假设学生有一个默认角色 "ROLE_STUDENT"
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_STUDENT"));
+
+        // 认证成功，手动设置认证信息
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(s.getSid(), null, authorities);
+
+        // 将认证信息存入 SecurityContext
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // 将认证信息存入 HttpSession
+        request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+                SecurityContextHolder.getContext());
+
+        // 构建返回信息
+        response.put("message", "登录成功");
+        Map<String, Object> data = new HashMap<>();
+        data.put("sid", s.getSid());
+        data.put("name", s.getSname());
+        data.put("sessionId", request.getSession().getId());
+        response.put("data", data);
+        response.put("code", 200);
+
+        // 打印日志
+        System.out.println("认证成功，返回重要信息：");
+        System.out.println("认证主体 (Principal): " + authentication.getPrincipal());
+        System.out.println("权限 (Authorities): " + authentication.getAuthorities());
+        System.out.println("认证详细信息 (Details): " + authentication.getDetails());
+        System.out.println("返回内容: " + response);
+
+        return true;
     }
 
     @PostMapping("/findBySearch")

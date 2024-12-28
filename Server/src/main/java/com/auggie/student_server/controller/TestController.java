@@ -3,6 +3,7 @@ package com.auggie.student_server.controller;
 import com.auggie.student_server.entity.Student;
 import com.auggie.student_server.entity.Teacher;
 import com.auggie.student_server.service.TeacherService;
+import com.auggie.student_server.utils.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,5 +29,11 @@ public class TestController {
     public boolean log() {
         System.out.printf("log");
         return true;
+    }
+
+    @GetMapping("/auth-info")
+    public void printAuthInfo() {
+        System.out.println("auth-info");
+        SecurityUtil.printAuthenticationInfo();
     }
 }
