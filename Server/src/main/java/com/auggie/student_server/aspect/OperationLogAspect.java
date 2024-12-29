@@ -44,7 +44,8 @@ public class OperationLogAspect {
         String host = getClientHost();
 
         // 打印操作日志
-        log.info("操作日志（成功）：\n类名: {}\n方法名: {}\n操作人: {}\n请求ID: {}\n主机信息: {}\n状态: SUCCESS",
+        log.info("\n<<<----------------------------操作日志---------------------------->>>" +
+                        "\n类名: {}\n方法名: {}\n操作人: {}\n请求ID: {}\n主机信息: {}\n状态: SUCCESS",
                 className, methodName, operator, requestId, host);
 
         // 打印客户端信息
@@ -79,8 +80,7 @@ public class OperationLogAspect {
     private void logClientInfo() {
         StringBuilder clientInfo = new StringBuilder();
         Enumeration<String> headerNames = request.getHeaderNames();
-
-        clientInfo.append("客户端信息：\n");
+        clientInfo.append("\n<<<---------------------------客户端信息--------------------------->>>\n");
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             String headerValue = request.getHeader(headerName);
@@ -122,7 +122,6 @@ public class OperationLogAspect {
         while (headerNames.hasMoreElements()) {
             String headerName = headerNames.nextElement();
             String headerValue = request.getHeader(headerName);
-            System.out.println(headerName + ": " + headerValue);
             if ("userid".equalsIgnoreCase(headerName)&& !Objects.equals(headerValue, "")) {
                 return request.getHeader(headerName);
             }
