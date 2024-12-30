@@ -85,6 +85,9 @@ public class StudentService {
      * @return 是否成功
      */
     public boolean updateById(Student student) {
+        if (student == null || student.getSid() == null) {
+            throw new IllegalArgumentException("Student object and ID cannot be null for update");
+        }
         return studentMapper.updateById(student);
     }
 

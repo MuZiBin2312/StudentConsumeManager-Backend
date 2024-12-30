@@ -3,12 +3,27 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.auggie.student_server.mapper.StudentMapper">
-    <select id="findAll" resultType="Student">
-        SELECT * FROM studentms.s;
+    <resultMap id="StudentResultMap" type="com.auggie.student_server.entity.Student">
+        <id column="sid" property="sid" />
+        <result column="sname" property="sname" />
+        <result column="password" property="password" />
+        <result column="id_number" property="idNumber" />
+        <result column="ethnicity" property="ethnicity" />
+        <result column="college" property="college" />
+        <result column="political_status" property="politicalStatus" />
+        <result column="grade" property="grade" />
+        <result column="subject" property="subject" />
+        <result column="campus" property="campus" />
+    </resultMap>
+    <select id="findAll" resultMap="StudentResultMap">
+        SELECT sid, sname, password, id_number, ethnicity, college, political_status, grade, subject, campus
+        FROM studentms.s;
     </select>
 
-    <select id="findById" resultType="Student">
-        SELECT * FROM studentms.s WHERE sid = #{sid};
+    <select id="findById" resultMap="StudentResultMap">
+        SELECT sid, sname, password, id_number, ethnicity, college, political_status, grade, subject, campus
+        FROM studentms.s
+        WHERE sid = #{sid};
     </select>
 
     <select id="findBySearch" resultType="Student">
@@ -28,10 +43,43 @@
         </where>
     </select>
 
+<!--    <update id="updateById">-->
+<!--        UPDATE studentms.s SET-->
+<!--                               sname = #{student.sname},-->
+<!--                               password = #{student.password}-->
+<!--        WHERE sid = #{student.sid};-->
+<!--    </update>-->
     <update id="updateById">
-        UPDATE studentms.s SET
-                               sname = #{student.sname},
-                               password = #{student.password}
+        UPDATE studentms.s
+        <set>
+            <if test="student.sname != null">
+                sname = #{student.sname},
+            </if>
+            <if test="student.password != null">
+                password = #{student.password},
+            </if>
+            <if test="student.idNumber != null">
+                id_number = #{student.idNumber},
+            </if>
+            <if test="student.ethnicity != null">
+                ethnicity = #{student.ethnicity},
+            </if>
+            <if test="student.college != null">
+                college = #{student.college},
+            </if>
+            <if test="student.politicalStatus != null">
+                political_status = #{student.politicalStatus},
+            </if>
+            <if test="student.grade != null">
+                grade = #{student.grade},
+            </if>
+            <if test="student.subject != null">
+                subject = #{student.subject},
+            </if>
+            <if test="student.campus != null">
+                campus = #{student.campus},
+            </if>
+        </set>
         WHERE sid = #{student.sid};
     </update>
 

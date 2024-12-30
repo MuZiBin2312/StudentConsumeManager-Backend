@@ -19,23 +19,23 @@ import java.util.List;
 @Repository
 public interface StudentMapper {
 
-//    select
+    //    select
     public List<Student> findAll();
 
     public Student findById(@Param("sid") Integer sid);
 
     public List<Student> findBySearch(@Param("student") Student student, @Param("fuzzy") Integer fuzzy);
 
-//    update
+    //    update
     public boolean updateById(@Param("student") Student student);
 
-//    insert
+    //    insert
     public boolean save(@Param("student") Student student);
 
-//    delete
+    //    delete
     public boolean deleteById(@Param("sid") Integer sid);
 
-//  add record
+    //  add record
     public boolean addRecord(@Param("addRecord") ConsumeRecord consumeRecord);
 
 }

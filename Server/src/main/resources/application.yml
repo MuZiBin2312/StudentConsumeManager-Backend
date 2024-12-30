@@ -8,6 +8,7 @@ spring:
 mybatis:
   type-aliases-package: com.auggie.student_server.entity
   mapper-locations: classpath:mapper/*.xml
+  map-underscore-to-camel-case: true
 
 server:
 # 正式环境 10085
