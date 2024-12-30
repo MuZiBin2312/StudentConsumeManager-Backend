@@ -112,6 +112,22 @@ public class RecordController {
         }
     }
 
+
+    // 批量删除消费记录
+    @DeleteMapping("/batchDelete")
+    public ApiResponse<String> batchDelete(@RequestBody List<Integer> ids) {
+        try {
+            boolean success = recordService.batchDelete(ids);
+            if (success) {
+                return ApiResponse.success("批量删除成功");
+            } else {
+                return ApiResponse.businessError("未找到对应的记录");
+            }
+        } catch (Exception e) {
+            return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
+    }
+
     // 测试日志接口
     @GetMapping("/log")
     public ApiResponse<Integer> log() {

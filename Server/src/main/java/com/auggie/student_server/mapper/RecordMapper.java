@@ -43,4 +43,8 @@ public interface RecordMapper {
 
 
     int updateRecordById(ConsumeRecord record);
+
+
+    int batchDelete(@Param("ids") List<Integer> recordIds);
+
 }

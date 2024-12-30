@@ -2,6 +2,7 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="com.auggie.student_server.mapper.RecordMapper">
 
     <!-- 根据搜索条件查询消费记录 -->
@@ -90,11 +91,7 @@
         FROM consume_record
     </select>
 
-
-
-
     <!-- 插入新消费记录 -->
-        <!-- 使用 'addRecord' 参数名称 -->
     <insert id="addRecord" parameterType="com.auggie.student_server.entity.ConsumeRecord">
         INSERT INTO consume_record (record_id, name, student_id, amount, location, time, payment_type, consumption_type)
         VALUES (#{addRecord.recordId}, #{addRecord.name}, #{addRecord.studentId}, #{addRecord.amount},
@@ -107,8 +104,16 @@
         WHERE record_id = #{recordId}
     </delete>
 
-<!--    更新-->
+    <!-- 批量删除消费记录 -->
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM consume_record
+        WHERE record_id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
 
+    <!-- 更新消费记录 -->
     <update id="updateRecordById" parameterType="com.auggie.student_server.entity.ConsumeRecord">
         UPDATE consume_record
         <set>
@@ -136,6 +141,5 @@
         </set>
         WHERE record_id = #{recordId}
     </update>
-
 
 </mapper>

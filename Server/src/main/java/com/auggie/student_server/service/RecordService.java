@@ -44,4 +44,8 @@ public class RecordService {
     }
 
 
+    public boolean batchDelete(List<Integer> recordIds) {
+        return recordMapper.batchDelete(recordIds) > 0;
+    }
+
 }
