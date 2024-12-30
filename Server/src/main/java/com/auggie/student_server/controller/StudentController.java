@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
@@ -32,20 +31,18 @@ public class StudentController {
 
     @PostMapping("/addStudent")
     public boolean addStudent(@RequestBody Student student) {
-        System.out.println("正在保存学生对象" + student);
+        System.out.println("正在保存学生对象: " + student);
         return studentService.save(student);
     }
 
     @PostMapping("/login")
     public boolean login(@RequestBody Student student, HttpServletRequest request) {
-        Map<String, Object> response = new HashMap<>();
         System.out.println("正在验证学生登录: " + student);
 
         Student s = studentService.findById(student.getSid());
         if (s == null || !s.getPassword().equals(student.getPassword())) {
-            response.put("message", "登录失败，账号或密码错误");
-            response.put("code", 401);
-            return true;
+            System.out.println("登录失败，账号或密码错误");
+            return false;
         }
 
         // 构建权限集合，假设学生有一个默认角色 "ROLE_STUDENT"
@@ -62,22 +59,7 @@ public class StudentController {
         request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
                 SecurityContextHolder.getContext());
 
-        // 构建返回信息
-        response.put("message", "登录成功");
-        Map<String, Object> data = new HashMap<>();
-        data.put("sid", s.getSid());
-        data.put("name", s.getSname());
-        data.put("sessionId", request.getSession().getId());
-        response.put("data", data);
-        response.put("code", 200);
-
-        // 打印日志
-        System.out.println("认证成功，返回重要信息：");
-        System.out.println("认证主体 (Principal): " + authentication.getPrincipal());
-        System.out.println("权限 (Authorities): " + authentication.getAuthorities());
-        System.out.println("认证详细信息 (Details): " + authentication.getDetails());
-        System.out.println("返回内容: " + response);
-
+        System.out.println("登录成功，已认证用户 SID: " + s.getSid());
         return true;
     }
 
@@ -89,13 +71,13 @@ public class StudentController {
 
     @GetMapping("/findById/{sid}")
     public Student findById(@PathVariable("sid") Integer sid) {
-        System.out.println("正在查询学生信息 By id " + sid);
+        System.out.println("正在查询学生信息 By id: " + sid);
         return studentService.findById(sid);
     }
 
     @GetMapping("/findByPage/{page}/{size}")
     public List<Student> findByPage(@PathVariable("page") int page, @PathVariable("size") int size) {
-        System.out.println("查询学生列表分页 " + page + " " + size);
+        System.out.println("查询学生列表分页: " + page + ", 大小: " + size);
         return studentService.findByPage(page, size);
     }
 
@@ -106,13 +88,13 @@ public class StudentController {
 
     @GetMapping("/deleteById/{sid}")
     public boolean deleteById(@PathVariable("sid") int sid) {
-        System.out.println("正在删除学生 sid：" + sid);
+        System.out.println("正在删除学生 SID: " + sid);
         return studentService.deleteById(sid);
     }
 
     @PostMapping("/updateStudent")
     public boolean updateStudent(@RequestBody Student student) {
-        System.out.println("更新 " + student);
+        System.out.println("更新学生信息: " + student);
         return studentService.updateById(student);
     }
 }

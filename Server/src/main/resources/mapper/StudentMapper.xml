@@ -30,17 +30,20 @@
 
     <update id="updateById">
         UPDATE studentms.s SET
-        sname = #{student.sname},
-        password = #{student.password}
+                               sname = #{student.sname},
+                               password = #{student.password}
         WHERE sid = #{student.sid};
     </update>
 
     <insert id="save">
-        INSERT INTO studentms.s (sname, password) VALUES (#{student.sname}, #{student.password})
+        INSERT INTO studentms.s
+        (sname, password, id_number, ethnicity, college, political_status, grade, subject, campus)
+        VALUES
+            (#{student.sname}, #{student.password}, #{student.idNumber}, #{student.ethnicity},
+             #{student.college}, #{student.politicalStatus}, #{student.grade}, #{student.subject}, #{student.campus});
     </insert>
 
     <delete id="deleteById">
-        DELETE FROM studentms.s WHERE sid = #{sid}
+        DELETE FROM studentms.s WHERE sid = #{sid};
     </delete>
-
 </mapper>
