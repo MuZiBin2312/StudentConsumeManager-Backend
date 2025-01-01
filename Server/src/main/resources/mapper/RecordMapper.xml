@@ -98,6 +98,17 @@
                 #{addRecord.location}, #{addRecord.time}, #{addRecord.paymentType}, #{addRecord.consumptionType})
     </insert>
 
+    <!-- 批量插入消费记录 -->
+    <insert id="insertBatch" parameterType="java.util.List">
+        INSERT INTO consume_record (record_id, name, student_id, amount, location, time, payment_type, consumption_type)
+        VALUES
+        <foreach collection="list" item="record" separator=",">
+            (#{record.recordId}, #{record.name}, #{record.studentId}, #{record.amount}, #{record.location}, #{record.time}, #{record.paymentType}, #{record.consumptionType})
+        </foreach>
+    </insert>
+
+
+
     <!-- 删除消费记录 -->
     <delete id="deleteById" parameterType="int">
         DELETE FROM consume_record

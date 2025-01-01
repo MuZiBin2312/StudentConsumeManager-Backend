@@ -24,5 +24,21 @@ public class ConsumeRecord {
     private LocalDateTime time;
     private String paymentType;     // 支付类型 (如: 微信, 支付宝, 现金等)
     private String consumptionType; // 消费类型 (如: 餐饮, 商品)
+
+
+    @Override
+    public String toString() {
+        return "ConsumeRecord{" +
+                "recordId=" + recordId +
+                ", name='" + name + '\'' +
+                ", studentId='" + studentId + '\'' +
+                ", amount=" + amount +
+                ", location='" + location + '\'' +
+                ", time=" + time +
+                ", paymentType='" + paymentType + '\'' +
+                ", consumptionType='" + consumptionType + '\'' +
+                '}';
+    }
+
 }
 

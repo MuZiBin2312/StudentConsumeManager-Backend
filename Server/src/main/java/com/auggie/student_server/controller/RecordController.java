@@ -5,7 +5,8 @@ import com.auggie.student_server.service.RecordService;
 import com.auggie.student_server.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
 
@@ -125,6 +126,17 @@ public class RecordController {
             }
         } catch (Exception e) {
             return ApiResponse.error(500, "服务器内部错误: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<String> importCSV(@RequestParam("file") MultipartFile file) {
+        boolean success = recordService.batchImportFromCSV(file);
+
+        if (success) {
+            return ResponseEntity.ok("文件导入成功");
+        } else {
+            return ResponseEntity.status(500).body("文件导入失败");
         }
     }
 
