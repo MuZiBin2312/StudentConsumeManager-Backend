@@ -6,19 +6,19 @@
 
     <!-- 插入操作日志 -->
     <insert id="insertLog" parameterType="com.auggie.student_server.entity.OperationLog">
-        INSERT INTO operation_log (module, action, operator, timestamp, request_id, status, host, error_message)
-        VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status}, #{host}, #{errorMessage})
+        INSERT INTO operation_log (module, action, operator, timestamp, request_id, status, host, error_message, identity)
+        VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status}, #{host}, #{errorMessage}, #{identity})
     </insert>
 
     <!-- 全部查询 -->
     <select id="findAll" resultType="com.auggie.student_server.entity.OperationLog">
-        SELECT id, module, action, operator, timestamp, request_id AS requestId, status, host
+        SELECT id, module, action, operator, timestamp, request_id AS requestId, status, host, identity
         FROM operation_log
     </select>
 
     <!-- 条件查询 -->
     <select id="findByCriteria" parameterType="map" resultType="com.auggie.student_server.entity.OperationLog">
-        SELECT id, module, action, operator, timestamp, request_id AS requestId, status, host
+        SELECT id, module, action, operator, timestamp, request_id AS requestId, status, host, identity
         FROM operation_log
         <where>
             <if test="params.id != null">
@@ -41,6 +41,9 @@
             </if>
             <if test="params.host != null and params.host != ''">
                 AND host = #{params.host}
+            </if>
+            <if test="params.identity != null and params.identity != ''">
+                AND identity = #{params.identity}
             </if>
             <if test="params.startTime != null and params.endTime != null">
                 AND timestamp BETWEEN #{params.startTime} AND #{params.endTime}

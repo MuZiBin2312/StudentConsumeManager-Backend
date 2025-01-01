@@ -15,16 +15,17 @@ public class OperationLogService {
     private OperationLogMapper operationLogMapper;
 
     // 添加操作日志
-    public void addLog(String module, String action, String operator, String requestId, String status, String host, String errorMessage) {
+    public void addLog(String module, String action, String operator, String requestId, String status, String host, String errorMessage, String identity) {
         OperationLog operationLog = new OperationLog();
-        operationLog.setModule(module);      // 设置模块名称
-        operationLog.setAction(action);      // 设置操作类型
-        operationLog.setOperator(operator);  // 设置操作人
-        operationLog.setRequestId(requestId);// 设置请求ID
-        operationLog.setStatus(status);      // 设置状态
+        operationLog.setModule(module);          // 设置模块名称
+        operationLog.setAction(action);          // 设置操作类型
+        operationLog.setOperator(operator);      // 设置操作人
+        operationLog.setRequestId(requestId);    // 设置请求ID
+        operationLog.setStatus(status);          // 设置状态
         operationLog.setTimestamp(new java.util.Date()); // 设置当前时间
-        operationLog.setHost(host);          // 设置客户端IP和端口信息
+        operationLog.setHost(host);              // 设置客户端IP和端口信息
         operationLog.setErrorMessage(errorMessage); // 设置错误信息
+        operationLog.setIdentity(identity);      // 设置操作员身份
 
         operationLogMapper.insertLog(operationLog); // 调用 Mapper 执行插入操作
     }

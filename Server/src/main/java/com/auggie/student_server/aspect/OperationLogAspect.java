@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
-
 @Slf4j
 @Aspect
 @Component
@@ -41,17 +40,18 @@ public class OperationLogAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         String operator = getOperator();
+        String identity = getIdentity(); // 获取身份信息
         String requestId = generateRequestId();
         String host = getClientHost();
         String status = truncate("SUCCESS", STATUS_MAX_LENGTH); // 截取
 
         log.info("\n<<<----------------------------操作日志---------------------------->>>" +
-                        "\n类名: {}\n方法名: {}\n操作人: {}\n请求ID: {}\n主机信息: {}\n状态: {}",
-                className, methodName, operator, requestId, host, status);
+                        "\n类名: {}\n方法名: {}\n操作人: {}\n身份: {}\n请求ID: {}\n主机信息: {}\n状态: {}",
+                className, methodName, operator, identity, requestId, host, status);
 
         logClientInfo();
 
-        logService.addLog(className, methodName, operator, requestId, status, host,null);
+        logService.addLog(className, methodName, operator, requestId, status, host, null,identity);
     }
 
     // 在方法抛出异常时记录日志
@@ -60,6 +60,7 @@ public class OperationLogAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         String operator = getOperator();
+        String identity = getIdentity(); // 获取身份信息
         String requestId = generateRequestId();
         String host = getClientHost();
         String status = truncate("FAILURE", STATUS_MAX_LENGTH); // 截取
@@ -67,13 +68,20 @@ public class OperationLogAspect {
         // 记录异常信息到日志中，错误信息不作为状态
         String errorMessage = exception.getMessage(); // 错误信息
 
-        log.error("操作日志（失败）：\n类名: {}\n方法名: {}\n操作人: {}\n请求ID: {}\n主机信息: {}\n状态: {}\n失败原因: {}",
-                className, methodName, operator, requestId, host, status, errorMessage);
+        log.error("操作日志（失败）：\n类名: {}\n方法名: {}\n操作人: {}\n身份: {}\n请求ID: {}\n主机信息: {}\n状态: {}\n失败原因: {}",
+                className, methodName, operator, identity, requestId, host, status, errorMessage);
 
         logClientInfo();
 
         // 将错误信息单独存储到日志中
-        logService.addLog(className, methodName, operator, requestId, status, host, errorMessage);
+        logService.addLog(className, methodName, operator, requestId, status, host, errorMessage,identity);
+    }
+
+    // 获取身份信息
+    private String getIdentity() {
+        String identity = request.getHeader("identity"); // 从请求头获取身份信息
+        System.out.println(identity);
+        return identity != null && !identity.isEmpty() ? identity : "UnknownUser";
     }
 
     // 截取字符串长度

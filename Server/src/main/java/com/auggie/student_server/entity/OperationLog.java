@@ -21,6 +21,7 @@ public class OperationLog {
     private String status;       // 状态
     private String host;         // 客户端IP和端口
     private String errorMessage; // 错误信息
+    private String identity;     // 操作员身份
 
     // Getter and Setter methods...
 
@@ -94,5 +95,13 @@ public class OperationLog {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 }

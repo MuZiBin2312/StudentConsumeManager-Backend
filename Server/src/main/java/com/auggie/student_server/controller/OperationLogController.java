@@ -31,7 +31,10 @@ public class OperationLogController {
             // 假设从请求体中获取 extraInfo
             String extraInfo = logRequest.getStatus(); // 你可以根据需求修改这一部分
 
-            // 调用 Service 层的 addLog 方法，传递 7 个参数
+            // 假设从请求头中获取身份信息（你可以根据实际需求修改获取方式）
+            String identity = request.getHeader("Identity"); // 从请求头获取身份信息
+
+            // 调用 Service 层的 addLog 方法，传递 8 个参数
             operationLogService.addLog(
                     logRequest.getModule(),
                     logRequest.getAction(),
@@ -39,7 +42,8 @@ public class OperationLogController {
                     logRequest.getRequestId(),
                     logRequest.getStatus(),
                     host, // 传递解析后的 host
-                    extraInfo // 传递额外的信息
+                    extraInfo, // 传递额外的信息
+                    identity // 传递身份信息
             );
 
             return ApiResponse.success(null);
