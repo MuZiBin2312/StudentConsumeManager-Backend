@@ -100,10 +100,10 @@
 
     <!-- 批量插入消费记录 -->
     <insert id="insertBatch" parameterType="java.util.List">
-        INSERT INTO consume_record (record_id, name, student_id, amount, location, time, payment_type, consumption_type)
+        INSERT INTO consume_record ( name, student_id, amount, location, time, payment_type, consumption_type)
         VALUES
         <foreach collection="list" item="record" separator=",">
-            (#{record.recordId}, #{record.name}, #{record.studentId}, #{record.amount}, #{record.location}, #{record.time}, #{record.paymentType}, #{record.consumptionType})
+            ( #{record.name}, #{record.studentId}, #{record.amount}, #{record.location}, #{record.time}, #{record.paymentType}, #{record.consumptionType})
         </foreach>
     </insert>
 

@@ -75,7 +75,6 @@ public class RecordService {
             for (CSVRecord csvRecord : csvParser) {
                 // 将每一行的数据映射到 ConsumeRecord 对象
                 ConsumeRecord record = new ConsumeRecord();
-                record.setRecordId(Integer.parseInt(csvRecord.get("record_id"))); // 假设 CSV 有 record_id 列
                 record.setName(csvRecord.get("name"));
                 record.setStudentId(csvRecord.get("student_id"));
                 record.setAmount(new BigDecimal(csvRecord.get("amount")));
