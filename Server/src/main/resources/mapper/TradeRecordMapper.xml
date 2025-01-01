@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.auggie.student_server.mapper.TradeRecordMapper">
+    <resultMap id="TradeRecordResultMap" type="com.auggie.student_server.entity.TradeRecord">
+        <!-- 映射字段 -->
+        <result property="id" column="id"/>
+        <result property="monthYear" column="month_year"/>
+        <result property="cateringCurrentValue" column="catering_current_value"/>
+        <result property="cateringCumulativeValue" column="catering_cumulative_value"/>
+        <result property="cateringGrowthRate" column="catering_growth_rate"/>
+        <result property="cateringCumulativeGrowth" column="catering_cumulative_growth"/>
+        <result property="cateringAboveCurrentValue" column="catering_above_current_value"/>
+        <result property="cateringAboveCumulativeValue" column="catering_above_cumulative_value"/>
+        <result property="cateringAboveGrowthRate" column="catering_above_growth_rate"/>
+        <result property="cateringAboveCumulativeGrowth" column="catering_above_cumulative_growth"/>
+        <result property="retailCurrentValue" column="retail_current_value"/>
+        <result property="retailCumulativeValue" column="retail_cumulative_value"/>
+        <result property="retailGrowthRate" column="retail_growth_rate"/>
+        <result property="retailCumulativeGrowth" column="retail_cumulative_growth"/>
+        <result property="retailAboveCurrentValue" column="retail_above_current_value"/>
+        <result property="retailAboveCumulativeValue" column="retail_above_cumulative_value"/>
+        <result property="retailAboveGrowthRate" column="retail_above_growth_rate"/>
+        <result property="retailAboveCumulativeGrowth" column="retail_above_cumulative_growth"/>
+    </resultMap>
+
+    <!-- 查询所有记录 -->
+    <select id="findAll" resultMap="TradeRecordResultMap">
+        SELECT * FROM vividime.trade_records
+    </select>
+
+    <!-- 按时间范围查询记录 -->
+    <select id="findByTimeRange" resultMap="TradeRecordResultMap">
+        SELECT *
+        FROM vividime.trade_records
+        WHERE month_year BETWEEN #{startTime} AND #{endTime}
+    </select>
+
+</mapper>

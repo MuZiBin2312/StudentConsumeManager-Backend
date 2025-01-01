@@ -81,7 +81,7 @@ public class OperationLogAspect {
     private String getIdentity() {
         String identity = request.getHeader("identity"); // 从请求头获取身份信息
         System.out.println(identity);
-        return identity != null && !identity.isEmpty() ? identity : "UnknownUser";
+        return identity != null && !identity.isEmpty() ? identity : "TestUser";
     }
 
     // 截取字符串长度
@@ -134,7 +134,7 @@ public class OperationLogAspect {
                 return request.getHeader(headerName);
             }
         }
-        return "UnknownUser";
+        return "TestUser";
     }
 
     private String generateRequestId() {
