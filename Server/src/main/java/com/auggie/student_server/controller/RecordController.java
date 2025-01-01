@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Map;
 
@@ -130,13 +131,13 @@ public class RecordController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<String> importCSV(@RequestParam("file") MultipartFile file) {
+    public ApiResponse<String> importCSV(@RequestParam("file") MultipartFile file) {
         boolean success = recordService.batchImportFromCSV(file);
 
         if (success) {
-            return ResponseEntity.ok("文件导入成功");
+            return ApiResponse.success("批量导入成功");
         } else {
-            return ResponseEntity.status(500).body("文件导入失败");
+            return ApiResponse.businessError("导入失败");
         }
     }
 
