@@ -28,13 +28,18 @@ public class OperationLogController {
             // 从请求中解析 host 信息（IP 和端口）
             String host = getHostFromRequest();
 
+            // 假设从请求体中获取 extraInfo
+            String extraInfo = logRequest.getStatus(); // 你可以根据需求修改这一部分
+
+            // 调用 Service 层的 addLog 方法，传递 7 个参数
             operationLogService.addLog(
                     logRequest.getModule(),
                     logRequest.getAction(),
                     logRequest.getOperator(),
                     logRequest.getRequestId(),
                     logRequest.getStatus(),
-                    host // 传递解析后的 host
+                    host, // 传递解析后的 host
+                    extraInfo // 传递额外的信息
             );
 
             return ApiResponse.success(null);

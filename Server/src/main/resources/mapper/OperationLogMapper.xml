@@ -6,8 +6,8 @@
 
     <!-- 插入操作日志 -->
     <insert id="insertLog" parameterType="com.auggie.student_server.entity.OperationLog">
-        INSERT INTO operation_log (module, action, operator, timestamp, request_id, status, host)
-        VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status}, #{host})
+        INSERT INTO operation_log (module, action, operator, timestamp, request_id, status, host, error_message)
+        VALUES (#{module}, #{action}, #{operator}, #{timestamp}, #{requestId}, #{status}, #{host}, #{errorMessage})
     </insert>
 
     <!-- 全部查询 -->

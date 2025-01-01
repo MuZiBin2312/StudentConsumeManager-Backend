@@ -20,6 +20,7 @@ public class OperationLog {
     private String requestId;    // 请求ID
     private String status;       // 状态
     private String host;         // 客户端IP和端口
+    private String errorMessage; // 错误信息
 
     // Getter and Setter methods...
 
@@ -85,5 +86,13 @@ public class OperationLog {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

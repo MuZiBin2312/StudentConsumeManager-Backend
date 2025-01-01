@@ -51,7 +51,7 @@ public class OperationLogAspect {
 
         logClientInfo();
 
-        logService.addLog(className, methodName, operator, requestId, status, host);
+        logService.addLog(className, methodName, operator, requestId, status, host,null);
     }
 
     // 在方法抛出异常时记录日志
@@ -62,14 +62,18 @@ public class OperationLogAspect {
         String operator = getOperator();
         String requestId = generateRequestId();
         String host = getClientHost();
-        String status = truncate("FAILURE: " + exception.getMessage(), STATUS_MAX_LENGTH); // 截取
+        String status = truncate("FAILURE", STATUS_MAX_LENGTH); // 截取
+
+        // 记录异常信息到日志中，错误信息不作为状态
+        String errorMessage = exception.getMessage(); // 错误信息
 
         log.error("操作日志（失败）：\n类名: {}\n方法名: {}\n操作人: {}\n请求ID: {}\n主机信息: {}\n状态: {}\n失败原因: {}",
-                className, methodName, operator, requestId, host, status, exception.getMessage());
+                className, methodName, operator, requestId, host, status, errorMessage);
 
         logClientInfo();
 
-        logService.addLog(className, methodName, operator, requestId, status, host);
+        // 将错误信息单独存储到日志中
+        logService.addLog(className, methodName, operator, requestId, status, host, errorMessage);
     }
 
     // 截取字符串长度

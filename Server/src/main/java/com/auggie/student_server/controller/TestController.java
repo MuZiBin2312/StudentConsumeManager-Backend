@@ -36,4 +36,13 @@ public class TestController {
         System.out.println("auth-info");
         SecurityUtil.printAuthenticationInfo();
     }
+
+    @GetMapping("/error")
+    public String triggerError() {
+        // 模拟业务逻辑中发生的异常
+        if (true) {
+            throw new RuntimeException("手动抛出的异常");
+        }
+        return "正常响应";
+    }
 }
