@@ -85,9 +85,9 @@
 
     <insert id="save">
         INSERT INTO studentms.s
-        (sname, password, id_number, ethnicity, college, political_status, grade, subject, campus)
+        (s.sid,sname, password, id_number, ethnicity, college, political_status, grade, subject, campus)
         VALUES
-            (#{student.sname}, #{student.password}, #{student.idNumber}, #{student.ethnicity},
+            (#{student.sid},#{student.sname}, #{student.password}, #{student.idNumber}, #{student.ethnicity},
              #{student.college}, #{student.politicalStatus}, #{student.grade}, #{student.subject}, #{student.campus});
     </insert>
 

@@ -132,14 +132,19 @@ public class RecordController {
 
     @PostMapping("/import")
     public ApiResponse<String> importCSV(@RequestParam("file") MultipartFile file) {
-        boolean success = recordService.batchImportFromCSV(file);
+        try {
+            boolean success = recordService.batchImportFromCSV(file);
 
-        if (success) {
-            return ApiResponse.success("批量导入成功");
-        } else {
-            return ApiResponse.businessError("导入失败");
+            if (success) {
+                return ApiResponse.success("批量导入成功");
+            } else {
+                return ApiResponse.businessError("导入失败");
+            }
+        } catch (Exception e) {
+            return ApiResponse.error(500, "导入过程中发生错误: " + e.getMessage());
         }
     }
+
 
     // 测试日志接口
     @GetMapping("/log")

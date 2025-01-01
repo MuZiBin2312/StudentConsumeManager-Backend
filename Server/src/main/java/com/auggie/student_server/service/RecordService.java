@@ -100,7 +100,8 @@ public class RecordService {
                     // 输出失败的日期字符串和异常信息
                     System.out.println("Failed to parse time: " + timeStr);
                     e.printStackTrace();
-                    continue; // 如果解析失败，跳过该行记录
+                    // 重新抛出异常以确保切面捕获
+                    throw new IllegalArgumentException("Failed to parse time for record: " + timeStr, e);
                 }
 
                 // 设置支付类型和消费类型
@@ -118,7 +119,8 @@ public class RecordService {
             return recordMapper.insertBatch(records) > 0; // 调用批量插入方法
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            // 重新抛出异常，确保切面捕获
+            throw new RuntimeException("Error occurred during batch import from CSV", e);
         }
     }
 
