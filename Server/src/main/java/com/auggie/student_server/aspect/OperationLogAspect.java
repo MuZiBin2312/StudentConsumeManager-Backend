@@ -79,9 +79,20 @@ public class OperationLogAspect {
 
     // 获取身份信息
     private String getIdentity() {
-        String identity = request.getHeader("identity"); // 从请求头获取身份信息
-        System.out.println(identity);
+        String identity = request.getHeader("userType"); // 从请求头获取身份信息
+        System.out.println("shenfen   "+identity);
         return identity != null && !identity.isEmpty() ? identity : "TestUser";
+    }
+    private String getOperator() {
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            String headerValue = request.getHeader(headerName);
+            if ("userId".equalsIgnoreCase(headerName) && !Objects.equals(headerValue, "")) {
+                return request.getHeader(headerName);
+            }
+        }
+        return "TestUser";
     }
 
     // 截取字符串长度
@@ -125,17 +136,7 @@ public class OperationLogAspect {
         return ip + ":" + port;
     }
 
-    private String getOperator() {
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            String headerValue = request.getHeader(headerName);
-            if ("userid".equalsIgnoreCase(headerName) && !Objects.equals(headerValue, "")) {
-                return request.getHeader(headerName);
-            }
-        }
-        return "TestUser";
-    }
+
 
     private String generateRequestId() {
         String timestamp = new SimpleDateFormat("yyyyMMddHHmmssSSS").format(new Date());
