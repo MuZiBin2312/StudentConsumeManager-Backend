@@ -123,7 +123,7 @@ public class RecordService {
         } catch (Exception e) {
             e.printStackTrace();
             // 重新抛出异常，确保切面捕获
-            throw new RuntimeException("Error occurred during batch import from CSV", e);
+            throw new RuntimeException("Error occurred during batch import", e);
         }
 
     }
