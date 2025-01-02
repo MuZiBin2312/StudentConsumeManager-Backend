@@ -102,7 +102,7 @@ public class RecordController {
     // 批量导入消费记录
     @PostMapping("/import")
     public ApiResponse<String> importCSV(@RequestParam("file") MultipartFile file) throws Exception {
-        boolean success = recordService.batchImportFromCSV(file);
+        boolean success = recordService.batchImportFromExcel(file);
         if (success) {
             return ApiResponse.success("批量导入成功");
         } else {
