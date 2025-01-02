@@ -5,21 +5,19 @@ import com.auggie.student_server.mapper.RecordMapper;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.poi.ss.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import java.text.SimpleDateFormat;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.apache.poi.ss.usermodel.*;
-import java.io.InputStream;
+import java.util.*;
 
 @Service
 public class RecordService {
@@ -27,8 +25,20 @@ public class RecordService {
     @Autowired
     private RecordMapper recordMapper;
 
+    // 英文字段到中文字段的映射
+    private static final Map<String, String> fieldMapping = new HashMap<>();
+    static {
+        fieldMapping.put("name", "商品名");
+        fieldMapping.put("student_id", "学号");
+        fieldMapping.put("amount", "金额");
+        fieldMapping.put("location", "位置");
+        fieldMapping.put("time", "时间");
+        fieldMapping.put("payment_type", "支付方式");
+        fieldMapping.put("consumption_type", "消费类别");
+    }
+
     public boolean addRecord(ConsumeRecord consumeRecord) {
-        return recordMapper.addRecord(consumeRecord); // 使用 record 参数
+        return recordMapper.addRecord(consumeRecord);
     }
 
     public boolean deleteRecordById(int recordId) {
@@ -55,114 +65,89 @@ public class RecordService {
         return recordMapper.batchDelete(recordIds) > 0;
     }
 
-    /**
-     * 批量导入消费记录，前端上传 CSV 文件
-     *
-     * @param file 前端上传的 CSV 文件
-     * @return 导入是否成功
-     */
     public boolean batchImportFromCSV(MultipartFile file) {
         try {
-            // 读取 CSV 文件内容
             Reader reader = new InputStreamReader(file.getInputStream());
             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader().withIgnoreHeaderCase().withTrim());
-
-            // 定义日期时间格式，支持多个常见格式
             DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
             DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy/M/d H:mm");
 
-            // 存储所有消费记录
             List<ConsumeRecord> records = new ArrayList<>();
-
-            // 遍历 CSV 文件中的每一行
             for (CSVRecord csvRecord : csvParser) {
-                // 将每一行的数据映射到 ConsumeRecord 对象
                 ConsumeRecord record = new ConsumeRecord();
-                record.setName(csvRecord.get("name"));
-                record.setStudentId(csvRecord.get("student_id"));
-                record.setAmount(new BigDecimal(csvRecord.get("amount")));
-                record.setLocation(csvRecord.get("location"));
 
-                // 获取时间字符串，进行格式处理和解析
-                String timeStr = csvRecord.get("time").trim(); // 去掉空格
-                System.out.println("开始转换");
-                System.out.println("Parsing time: " + timeStr); // 打印出时间字符串，查看格式是否正确
+                record.setName(csvRecord.get(mapFieldName("name")));
+                record.setStudentId(csvRecord.get(mapFieldName("student_id")));
+                record.setAmount(new BigDecimal(csvRecord.get(mapFieldName("amount"))));
+                record.setLocation(csvRecord.get(mapFieldName("location")));
 
+                String timeStr = csvRecord.get(mapFieldName("time")).trim();
                 try {
-                    // 如果日期时间格式是 "yyyy/MM/dd HH:mm"（比如 "2024/1/1 12:00"）
                     if (timeStr.matches("\\d{4}/\\d{1,2}/\\d{1,2} \\d{1,2}:\\d{2}")) {
-                        // 尝试解析日期时间
                         try {
                             record.setTime(LocalDateTime.parse(timeStr, formatter1));
                         } catch (Exception e) {
-                            // 如果第一种格式失败，尝试另一种格式
                             record.setTime(LocalDateTime.parse(timeStr, formatter2));
                         }
                     }
                 } catch (Exception e) {
-                    // 输出失败的日期字符串和异常信息
-                    System.out.println("Failed to parse time: " + timeStr);
-                    e.printStackTrace();
-                    // 重新抛出异常以确保切面捕获
                     throw new IllegalArgumentException("Failed to parse time for record: " + timeStr, e);
                 }
 
-                // 设置支付类型和消费类型
-                record.setPaymentType(csvRecord.get("payment_type"));
-                record.setConsumptionType(csvRecord.get("consumption_type"));
+                record.setPaymentType(csvRecord.get(mapFieldName("payment_type")));
+                record.setConsumptionType(csvRecord.get(mapFieldName("consumption_type")));
 
-                // 打印每条记录，检查数据
-                System.out.println("Inserting record: " + record);
-
-                // 添加到记录列表
                 records.add(record);
             }
 
-            // 批量插入到数据库
-            return recordMapper.insertBatch(records) > 0; // 调用批量插入方法
+            return recordMapper.insertBatch(records) > 0;
         } catch (Exception e) {
             e.printStackTrace();
-            // 重新抛出异常，确保切面捕获
             throw new RuntimeException("Error occurred during batch import", e);
         }
-
     }
-    /**
-     * 批量导入消费记录，前端上传 Excel 文件
-     *
-     * @param file 前端上传的 Excel 文件
-     * @return 导入是否成功
-     */
+
     public boolean batchImportFromExcel(MultipartFile file) {
         try {
-            // 获取 Excel 文件输入流
             InputStream inputStream = file.getInputStream();
-
-            // 使用 Apache POI 读取 Excel 文件
             Workbook workbook = WorkbookFactory.create(inputStream);
-            Sheet sheet = workbook.getSheetAt(0); // 假设数据在第一个 Sheet
+            Sheet sheet = workbook.getSheetAt(0);
 
-            // 定义日期时间格式，支持多个常见格式
             DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm");
             DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy/M/d H:mm");
 
-            // 存储所有消费记录
             List<ConsumeRecord> records = new ArrayList<>();
 
-            // 遍历 Excel 文件中的每一行（跳过标题行）
+            // 列名数组
+            String[] columnNames = {"name", "studentId", "amount", "location", "time", "paymentType", "consumptionType"};
+
+            System.out.println("Start processing rows...");
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                if (row == null) continue;
+                if (row == null || isRowEmpty(row, columnNames)) {
+                    System.out.println("Row " + i + " is empty, skipping...");
+                    continue;
+                }
 
-                // 将每一行的数据映射到 ConsumeRecord 对象
+                System.out.println("Processing row " + i + "...");
                 ConsumeRecord record = new ConsumeRecord();
-                record.setName(getCellValueAsString(row.getCell(0)));
-                record.setStudentId(getCellValueAsString(row.getCell(1)));
-                record.setAmount(new BigDecimal(getCellValueAsString(row.getCell(2))));
-                record.setLocation(getCellValueAsString(row.getCell(3)));
 
-                // 获取时间字符串，进行格式处理和解析
-                String timeStr = getCellValueAsString(row.getCell(4)).trim();
+                // 获取并打印每列数据
+                record.setName(getCellValueAsString(row.getCell(0), "name"));
+                System.out.println("Name: " + record.getName());
+
+                record.setStudentId(getCellValueAsString(row.getCell(1), "studentId"));
+                System.out.println("Student ID: " + record.getStudentId());
+
+                record.setAmount(new BigDecimal(getCellValueAsString(row.getCell(2), "amount")));
+                System.out.println("Amount: " + record.getAmount());
+
+                record.setLocation(getCellValueAsString(row.getCell(3), "location"));
+                System.out.println("Location: " + record.getLocation());
+
+                String timeStr = getCellValueAsString(row.getCell(4), "time").trim();
+                System.out.println("Time: " + timeStr);
+
                 try {
                     if (timeStr.matches("\\d{4}/\\d{1,2}/\\d{1,2} \\d{1,2}:\\d{2}")) {
                         try {
@@ -172,57 +157,85 @@ public class RecordService {
                         }
                     }
                 } catch (Exception e) {
+                    System.out.println("Error parsing time for row " + i + ": " + timeStr);
                     throw new IllegalArgumentException("Failed to parse time for record: " + timeStr, e);
                 }
 
-                // 设置支付类型和消费类型
-                record.setPaymentType(getCellValueAsString(row.getCell(5)));
-                record.setConsumptionType(getCellValueAsString(row.getCell(6)));
+                record.setPaymentType(getCellValueAsString(row.getCell(5), "paymentType"));
+                System.out.println("Payment Type: " + record.getPaymentType());
 
-                // 添加到记录列表
+                record.setConsumptionType(getCellValueAsString(row.getCell(6), "consumptionType"));
+                System.out.println("Consumption Type: " + record.getConsumptionType());
+
+                // Add record to the list
                 records.add(record);
             }
 
-            // 关闭工作簿
             workbook.close();
-
-            // 批量插入到数据库
-            return recordMapper.insertBatch(records) > 0; // 调用批量插入方法
+            System.out.println("Finished processing rows. Inserting batch...");
+            return recordMapper.insertBatch(records) > 0;
         } catch (Exception e) {
+            System.out.println("Error occurred during batch import from Excel: " + e.getMessage());
             throw new RuntimeException("Error occurred during batch import from Excel", e);
         }
     }
 
-    /**
-     * 辅助方法：获取单元格的字符串值
-     *
-     * @param cell 单元格
-     * @return 单元格的字符串值
-     */
+    // 检查行是否为空
+    private boolean isRowEmpty(Row row, String[] columnNames) {
+        for (int i = 0; i < columnNames.length; i++) {
+            Cell cell = row.getCell(i);
+            // 使用列名来获取单元格的值
+            if (cell != null && !getCellValueAsString(cell, columnNames[i]).trim().isEmpty()) {
+                return false;  // 行中有有效数据
+            }
+        }
+        return true;  // 行为空
+    }
 
-    private String getCellValueAsString(Cell cell) {
+
+    private String getCellValueAsString(Cell cell, String columnName) {
         if (cell == null) {
+            System.out.println("Cell is null for column: " + columnName);
             return "";
         }
+
+        System.out.println("Processing cell value for column: " + columnName);
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue();
+                String stringValue = cell.getStringCellValue();
+                System.out.println("STRING value for " + columnName + ": " + stringValue);
+                return stringValue;
             case NUMERIC:
                 if (DateUtil.isCellDateFormatted(cell)) {
-                    // 使用 SimpleDateFormat 格式化日期
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/M/d H:mm");
-                    return dateFormat.format(cell.getDateCellValue());
+                    String dateValue = dateFormat.format(cell.getDateCellValue());
+                    System.out.println("DATE value for " + columnName + ": " + dateValue);
+                    return dateValue;
                 } else {
-                    return BigDecimal.valueOf(cell.getNumericCellValue()).toPlainString();
+                    String numericValue = BigDecimal.valueOf(cell.getNumericCellValue()).toPlainString();
+                    // 去掉末尾的 .0
+                    if (numericValue.endsWith(".0")) {
+                        numericValue = numericValue.substring(0, numericValue.length() - 2);
+                    }
+                    System.out.println("NUMERIC value for " + columnName + ": " + numericValue);
+                    return numericValue;
                 }
             case BOOLEAN:
-                return Boolean.toString(cell.getBooleanCellValue());
+                String booleanValue = Boolean.toString(cell.getBooleanCellValue());
+                System.out.println("BOOLEAN value for " + columnName + ": " + booleanValue);
+                return booleanValue;
             case FORMULA:
-                return cell.getCellFormula();
+                String formulaValue = cell.getCellFormula();
+                System.out.println("FORMULA value for " + columnName + ": " + formulaValue);
+                return formulaValue;
             default:
+                System.out.println("UNKNOWN value type for column: " + columnName);
                 return "";
         }
     }
 
-
+    // 根据字段映射表将英文字段名转换为中文字段名
+    private String mapFieldName(String fieldName) {
+        return fieldMapping.getOrDefault(fieldName, fieldName);
+    }
 }

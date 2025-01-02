@@ -4,10 +4,16 @@ import com.auggie.student_server.entity.ConsumeRecord;
 import com.auggie.student_server.service.RecordService;
 import com.auggie.student_server.utils.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -103,11 +109,37 @@ public class RecordController {
     @PostMapping("/import")
     public ApiResponse<String> importCSV(@RequestParam("file") MultipartFile file) throws Exception {
         boolean success = recordService.batchImportFromExcel(file);
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("上传的文件为空");
+        }
+
         if (success) {
             return ApiResponse.success("批量导入成功");
         } else {
             throw new RuntimeException("导入失败");
         }
+    }
+
+
+    // 发送 Excel 文件到前端
+    @GetMapping("/exportExcel")
+    public ResponseEntity<InputStreamResource> exportExcel() throws IOException {
+        // 假设你有一个生成 Excel 文件的方法，并将其保存在服务器上
+        String filePath = "/Users/lijiahe/IdeaProjects/StudentConsumeManager-Backend/Server/src/main/java/com/auggie/student_server/static/excel插入数据_说中文.xlsx";
+
+        // 创建文件对象
+        File file = new File(filePath);
+        // 将文件作为流返回给前端
+        FileInputStream fileInputStream = new FileInputStream(file);
+
+        // 设置文件类型和头信息
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(new InputStreamResource(fileInputStream));
     }
 
     // 测试日志接口
@@ -117,9 +149,12 @@ public class RecordController {
         return ApiResponse.success(1);
     }
 
+
+
     // 测试异常抛出
     @GetMapping("/throw")
     public ApiResponse<String> throwException() {
         throw new RuntimeException("测试异常");
     }
+
 }
