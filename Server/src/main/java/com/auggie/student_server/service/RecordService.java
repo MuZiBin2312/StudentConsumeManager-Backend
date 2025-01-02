@@ -107,7 +107,7 @@ public class RecordService {
         }
     }
 
-    public boolean batchImportFromExcel(MultipartFile file) {
+    public boolean batchImportFromExcel(MultipartFile file, String userId) {
         try {
             InputStream inputStream = file.getInputStream();
             Workbook workbook = WorkbookFactory.create(inputStream);
@@ -136,7 +136,12 @@ public class RecordService {
                 record.setName(getCellValueAsString(row.getCell(0), "name"));
                 System.out.println("Name: " + record.getName());
 
-                record.setStudentId(getCellValueAsString(row.getCell(1), "studentId"));
+                // 设置 Student ID
+                if (!"-1".equals(userId)) {
+                    record.setStudentId(userId); // 如果传入的 userId 不是 -1，则覆盖为 userId
+                } else {
+                    record.setStudentId(getCellValueAsString(row.getCell(1), "studentId")); // 否则从 Excel 中读取
+                }
                 System.out.println("Student ID: " + record.getStudentId());
 
                 record.setAmount(new BigDecimal(getCellValueAsString(row.getCell(2), "amount")));
@@ -179,7 +184,6 @@ public class RecordService {
             throw new RuntimeException("Error occurred during batch import from Excel", e);
         }
     }
-
     // 检查行是否为空
     private boolean isRowEmpty(Row row, String[] columnNames) {
         for (int i = 0; i < columnNames.length; i++) {

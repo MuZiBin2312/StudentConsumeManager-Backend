@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
@@ -107,11 +105,41 @@ public class RecordController {
 
     // 批量导入消费记录
     @PostMapping("/import")
-    public ApiResponse<String> importCSV(@RequestParam("file") MultipartFile file) throws Exception {
-        boolean success = recordService.batchImportFromExcel(file);
+    public ApiResponse<String> importCSV(
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "userType", required = false) String userType,
+            @RequestHeader(value = "userId", required = false) Object userId) throws Exception {
+
+        // 检查文件是否为空
         if (file == null || file.isEmpty()) {
             throw new RuntimeException("上传的文件为空");
         }
+
+        // 判断 userType 是否为 "student"
+        if ("student".equalsIgnoreCase(userType)) {
+            if (userId != null) {
+                if (userId instanceof Double) {
+                    userId = ((Double) userId).intValue();
+                } else if (userId instanceof Integer) {
+                    userId = (Integer) userId;
+                } else if (userId instanceof String) {
+                    try {
+                        userId = (int) Double.parseDouble((String) userId);
+                    } catch (NumberFormatException e) {
+                        userId = -1; // 解析失败时设置为 -1
+                    }
+                } else {
+                    userId = -1; // 不支持的类型时默认 -1
+                }
+            } else {
+                userId = -1; // userId 为空时默认 -1
+            }
+        } else {
+            userId = -1; // userType 不是 "student"，默认 -1
+        }
+
+        // 调用 Service 层方法并传递 processedUserId 参数
+        boolean success = recordService.batchImportFromExcel(file, String.valueOf(userId));
 
         if (success) {
             return ApiResponse.success("批量导入成功");
@@ -121,25 +149,25 @@ public class RecordController {
     }
 
 
-    // 发送 Excel 文件到前端
     @GetMapping("/exportExcel")
     public ResponseEntity<InputStreamResource> exportExcel() throws IOException {
-        // 假设你有一个生成 Excel 文件的方法，并将其保存在服务器上
-        String filePath = "/Users/lijiahe/IdeaProjects/StudentConsumeManager-Backend/Server/src/main/java/com/auggie/student_server/static/excel插入数据_说中文.xlsx";
+        // 使用类路径加载文件
+        String filePath = "static/消费记录模版.xlsx";
 
-        // 创建文件对象
-        File file = new File(filePath);
-        // 将文件作为流返回给前端
-        FileInputStream fileInputStream = new FileInputStream(file);
+        // 获取文件输入流
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filePath);
+        if (inputStream == null) {
+            throw new FileNotFoundException("文件未找到: " + filePath);
+        }
 
         // 设置文件类型和头信息
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=" + file.getName());
+        headers.add("Content-Disposition", "attachment; filename=消费记录模版.xlsx");
 
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                .body(new InputStreamResource(fileInputStream));
+                .body(new InputStreamResource(inputStream));
     }
 
     // 测试日志接口

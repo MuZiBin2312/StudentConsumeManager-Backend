@@ -80,7 +80,6 @@ public class OperationLogAspect {
     // 获取身份信息
     private String getIdentity() {
         String identity = request.getHeader("userType"); // 从请求头获取身份信息
-        System.out.println("shenfen   "+identity);
         return identity != null && !identity.isEmpty() ? identity : "TestUser";
     }
     private String getOperator() {
