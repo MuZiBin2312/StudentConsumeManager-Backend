@@ -45,6 +45,9 @@ public class RecordService {
         return recordMapper.deleteById(recordId) > 0;
     }
 
+    public int updateRecordById(ConsumeRecord record) {
+        return recordMapper.updateRecordById(record);
+    }
     public List<ConsumeRecord> getAllRecords() {
         return recordMapper.selectAllRecords();
     }
@@ -57,9 +60,6 @@ public class RecordService {
         return recordMapper.findById(recordId);
     }
 
-    public int updateRecordById(ConsumeRecord record) {
-        return recordMapper.updateRecordById(record);
-    }
 
     public boolean batchDelete(List<Integer> recordIds) {
         return recordMapper.batchDelete(recordIds) > 0;
