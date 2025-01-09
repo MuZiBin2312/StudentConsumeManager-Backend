@@ -19,6 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @Slf4j
 @Aspect
 @Component
+
 public class OperationLogAspect {
 
     @Autowired
